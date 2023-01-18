@@ -25,6 +25,9 @@ import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +61,7 @@ public class MetricsCollector {
 
         Metrics metric = new Metrics();
         metric.setMsRequestPending(stopwatch.getNanoTime());
+        metric.setMsDateTime(new Date());
 
         metricsRepository.save(metric);
     }
@@ -70,15 +74,41 @@ public class MetricsCollector {
 
         List<Metrics> metrics = metricsRepository.findAll();
 
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy-HH:mm:ss");
+
         String config = "{"
                 + "    type: 'bar',"
                 + "    data: {"
-                + "        labels: [" + metrics.stream().map(x -> "\'" + x.getId().toString() + "\'").collect(Collectors.joining(",")) + "],"
+                + "        labels: [" + metrics.stream().map(x -> "\'" + dateFormat.format(x.getMsDateTime()) + "\'").collect(Collectors.joining(",")) + "],"
                 + "        datasets: [{"
-                + "            label: 'Requests elapsed time',"
+                + "            label: 'Requests_elapsed_time',"
                 + "            data: [" + metrics.stream().map(x -> x.getMsRequestPending().toString()).collect(Collectors.joining(",")) + "]"
                 + "        }]"
-                + "    }"
+                + "    },"
+                + "    options: {"
+                + "        scales: {"
+                + "            xAxes: ["
+                + "                 {"
+                + "                    scaleLabel: {"
+                + "                         display: true,"
+                + "                         fontColor: '#000000',"
+                + "                         fontSize: 20,"
+                + "                         labelString: 'Elapsed_time',"
+                + "                    },"
+                + "                 },"
+                + "             ],"
+                + "             yAxes: ["
+                + "                 {"
+                + "                     scaleLabel: {"
+                + "                         display: true,"
+                + "                         labelString: 'Request_time,nanoSec',"
+                + "                         fontColor: '#000000',"
+                + "                         fontSize: 20,"
+                + "                     },"
+                + "                 },"
+                + "             ]"
+                + "         }"
+                + "     }"
                 + "}";
 
         config = config.replace(" ", "");
@@ -134,7 +164,7 @@ public class MetricsCollector {
 
         URI uri = UriComponentsBuilder.fromHttpUrl("https://api.ocr.space/parse/imageurl")
                 .queryParam("apikey", "K89541776288957")
-                .queryParam("url", "https://fsd.multiurok.ru/html/2017/11/14/s_5a0adc1b72c60/img2.jpg")
+                .queryParam("url", "https://cdn.trinixy.ru/uploads/posts/2017-09/1506092031_kartinki_s_nadpisiami_22.jpg")
                 .build().toUri();
 
         System.out.println("Send");

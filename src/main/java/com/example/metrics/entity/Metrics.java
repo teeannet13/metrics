@@ -1,10 +1,10 @@
 package com.example.metrics.entity;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Entity
 @Table(name = "metric")
@@ -19,4 +19,8 @@ public class Metrics {
 
     @Column(name = "ms_request_pending")
     private Long msRequestPending;
+
+    @Column(name = "ms_dt")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date msDateTime;
 }
